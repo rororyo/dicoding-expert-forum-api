@@ -7,15 +7,14 @@ class ThreadDetails {
       body: payload.thread.body,
       date: payload.thread.date,
       username: payload.thread.username,
-      comments: payload.thread.comments
     }
   }
   _verifyPayload(payload) {
     const {thread} = payload
-    if(!thread || !thread.id || !thread.title || !thread.body || !thread.date || !thread.username || !thread.comments) {
+    if(!thread || !thread.id || !thread.title || !thread.body || !thread.date || !thread.username ) {
       throw new Error('THREAD_DETAILS.NOT_CONTAIN_NEEDED_PROPERTY')
     }
-    if(typeof thread.id !== 'string' || typeof thread.title !== 'string' || typeof thread.body !== 'string' || typeof thread.date !== 'string' || typeof thread.username !== 'string' || !Array.isArray(thread.comments)) {
+    if(typeof thread.id !== 'string' || typeof thread.title !== 'string' || typeof thread.body !== 'string'  || typeof thread.username !== 'string') {
       throw new Error('THREAD_DETAILS.NOT_MEET_DATA_TYPE_SPECIFICATION')
     }
   }

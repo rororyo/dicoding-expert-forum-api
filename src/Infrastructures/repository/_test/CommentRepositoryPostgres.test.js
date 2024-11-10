@@ -38,42 +38,44 @@ describe("a CommentRepositoryPostgres interface", () => {
         threadId: threadId,
         owner: userId,
         content: "dicoding",
-      }
+      };
       const newComment = new PostComment(commentPayload);
-      const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "123");
-
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, () => "123");
+  
       // Action
-      await commentRepositoryPostgres.addComment(newComment);
-
+      const addedComment = await commentRepositoryPostgres.addComment(newComment);
+  
       // Assert
-      const comment = await commentRepositoryPostgres.getCommentById('comment-_pby_123');
-      expect(comment[0].content).toEqual(newComment.content);
-    })
-   })
+      expect(addedComment.id).toEqual('comment-_pby_123');
+      expect(addedComment.content).toEqual(newComment.content);
+      expect(addedComment.owner).toEqual(newComment.owner);
+    });
+  });
+  
   describe('a getCommentById function', () => { 
-    it('should throw not found error when comment not found', async () => {
-      // Arrange
-      const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "456");
-      // Action and Assert
-      await expect(commentRepositoryPostgres.getCommentById('comment-_pby_456')).rejects.toThrow(NotFoundError);
-    })
     it('should get comment correctly', async () => {
       // Arrange
       const commentPayload = {
         threadId: threadId,
         owner: userId,
         content: "dicoding456",
-      }
+      };
       const newComment = new PostComment(commentPayload);
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, () => "456");
+  
       // Action
-      const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "456");
       await commentRepositoryPostgres.addComment(newComment);
       const comment = await commentRepositoryPostgres.getCommentById('comment-_pby_456');
-
+  
       // Assert
+      expect(comment[0].id).toEqual('comment-_pby_456');
       expect(comment[0].content).toEqual(newComment.content);
-    })
-   })
+      expect(comment[0].owner).toEqual(newComment.owner);
+      expect(comment[0].date).toBeDefined();
+      expect(comment[0].is_delete).toEqual(0);
+    });
+  });
+  
   describe('a getCommentsByThreadId function', () => { 
     it('should get comments of a thread correctly', async () => {
       // Arrange
@@ -95,6 +97,25 @@ describe("a CommentRepositoryPostgres interface", () => {
       expect(comments[0].date).toBeDefined();
     })
    })
+   describe('a verifyCommentAvailability function', () => { 
+    it('should throw not found error when comment not found', async () => {
+      // Arrange
+      const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "456");
+      // Action and Assert
+      await expect(commentRepositoryPostgres.verifyCommentAvailability('idgakvalid')).rejects.toThrow(NotFoundError);
+    })
+    it('should not throw not found error when comment found', async () => {
+      // Arrange
+      const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "45678");
+      await commentRepositoryPostgres.addComment(new PostComment({
+        threadId: threadId,
+        owner: userId,
+        content: "dicoding 1212",
+      }))
+      // Action and Assert
+      await expect(commentRepositoryPostgres.getCommentById('comment-_pby_45678')).resolves.not.toThrow(NotFoundError);
+    })
+    })
   describe('a verifyCommentOwner function', () => { 
     it('should throw AuthorizationError if comment owner is not match', async () => {
       // Arrange
@@ -119,20 +140,24 @@ describe("a CommentRepositoryPostgres interface", () => {
       await expect(commentRepositoryPostgres.verifyCommentOwner('comment-_pby_123456', 'user-123')).resolves.not.toThrow(AuthorizationError);
      })
    })
-  describe('a deleteComment function', () => { 
+   describe('a deleteComment function', () => { 
     it('should delete comment correctly', async () => {
-      const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "abc");
+      // Arrange
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, () => "abc");
       await commentRepositoryPostgres.addComment(new PostComment({
         threadId: threadId,
         owner: userId,
         content: "dicoding 1212",
-      }))
+      }));
+  
       // Action
-      await commentRepositoryPostgres.deleteComment(threadId,'comment-_pby_abc',userId,);
+      await commentRepositoryPostgres.deleteComment('comment-_pby_abc', threadId, userId);
       const deletedComment = await commentRepositoryPostgres.getCommentById('comment-_pby_abc');
+  
       // Assert
       expect(deletedComment[0].is_delete).toEqual(1);
       expect(deletedComment[0].content).toEqual('**komentar telah dihapus**');
-    })
-   })
+    });
+  });
+  
 });

@@ -17,7 +17,6 @@ class CommentDetails {
         !Array.isArray(comments) ||
         typeof comments[0].id !== "string" ||
         typeof comments[0].username !== "string" ||
-        typeof comments[0].date !== "string" ||
         typeof comments[0].content !== "string"
       ) {
         throw new Error("COMMENT_DETAILS.NOT_MEET_DATA_TYPE_SPECIFICATION");
@@ -33,7 +32,7 @@ class CommentDetails {
         id: comment.id,
         username: comment.username,
         date: comment.date,
-        content: comment.is_deleted
+        content: comment.is_delete
           ? "**komentar telah dihapus**"
           : comment.content,
       };

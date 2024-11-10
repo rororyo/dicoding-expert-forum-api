@@ -31,6 +31,10 @@ const AddThreadUseCase = require('../Applications/use_case/threads/AddThreadUseC
 const AddCommentUseCase = require('../Applications/use_case/comments/AddCommentUseCase');
 const DeleteCommentUseCase = require('../Applications/use_case/comments/DeleteCommentUseCase');
 const ThreadDetailsUseCase = require('../Applications/use_case/threads/ThreadDetailsUseCase');
+const AddReplyUseCase = require('../Applications/use_case/replies/AddReplyUseCase');
+const ReplyRepository = require('../Domains/replies/ReplyRepository');
+const DeleteReplyUseCase = require('../Applications/use_case/replies/DeleteReplyUseCase');
+const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
 
 // creating container
 const container = createContainer();
@@ -100,6 +104,19 @@ container.register([
   {
     key: CommentRepository.name,
     Class:CommentRepositoryPostgres,
+    parameter:{
+      dependencies:[{
+        concrete:pool
+      },
+      {
+        concrete:nanoid
+      }
+    ]
+    }
+  },
+  {
+    key:ReplyRepository.name,
+    Class:ReplyRepositoryPostgres,
     parameter:{
       dependencies:[{
         concrete:pool
@@ -234,6 +251,43 @@ container.register([
     parameter:{
       injectType:'destructuring',
       dependencies:[{
+        name:'threadRepository',
+        internal:ThreadRepository.name
+      },{
+        name:'commentRepository',
+        internal:CommentRepository.name
+      },{
+        name:'replyRepository',
+        internal:ReplyRepository.name
+      }]
+    }
+  },
+  {
+    key:AddReplyUseCase.name,
+    Class:AddReplyUseCase,
+    parameter:{
+      injectType:'destructuring',
+      dependencies:[{
+        name:'replyRepository',
+        internal:ReplyRepository.name
+      },{
+        name:'threadRepository',
+        internal:ThreadRepository.name
+      },{
+        name:'commentRepository',
+        internal:CommentRepository.name
+      }]
+    }
+  },
+  {
+    key:DeleteReplyUseCase.name,
+    Class:DeleteReplyUseCase,
+    parameter:{
+      injectType:'destructuring',
+      dependencies:[{
+        name:'replyRepository',
+        internal:ReplyRepository.name
+      },{
         name:'threadRepository',
         internal:ThreadRepository.name
       },{

@@ -148,19 +148,12 @@ describe("/threads/{threadId}/comments endpoint", () => {
       await CommentsTableTestHelper.addComment({
         id: "comment-123",
         threadId: threadId,
-        owner: "",
+        owner: "bukanuser-123",
         content: "dicoding.com",
       })
-      const comment = await server.inject({
-        method: "POST",
-        url: `/threads/${threadId}/comments`,
-        payload: { content: "dicoding.com" },
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      const commentId = JSON.parse(comment.payload).data.addedComment.id;
       const response = await server.inject({
         method: "DELETE",
-        url: `/threads/${threadId}/comments/${commentId}`,
+        url: `/threads/${threadId}/comments/comment-123`,
         payload: {},
         headers: { Authorization: `Bearer ${accessToken}` },
       });

@@ -30,6 +30,8 @@ describe('a PostComment entities', () => {
     // Action
     const postComment = new PostComment(payload);
     // Assert
+    expect(postComment.threadId).toEqual(payload.threadId);
     expect(postComment.content).toEqual(payload.content);
+    expect(postComment.owner).toEqual(payload.owner);
   })
 })
