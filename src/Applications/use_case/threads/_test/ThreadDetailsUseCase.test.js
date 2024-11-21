@@ -1,6 +1,7 @@
 const CommentRepository = require("../../../../Domains/comments/CommentRepository");
 const ReplyRepository = require("../../../../Domains/replies/ReplyRepository");
 const ThreadRepository = require("../../../../Domains/threads/ThreadRepository");
+const UserRepository = require("../../../../Domains/users/UserRepository");
 const ThreadDetailsUseCase = require("../ThreadDetailsUseCase");
 
 describe("Thread Details UseCase", () => {
@@ -15,17 +16,31 @@ describe("Thread Details UseCase", () => {
       title: "dicoding123",
       body: "dicoding123 gacor gacor gacor",
       date: "2024-08-01T00:00:00.000Z",
-      username: "user-123",
+      username: "Dicoding",
       comments: [
         {
           id: "comment-123",
-          username: "user-123",
+          username: "Dicoding",
           date: "2024-08-01T00:00:00.000Z",
           content: "dicoding123",
           replies: [
             {
               id: "reply-123",
-              username: "user-123",
+              username: "Dicoding",
+              date: "2024-08-01T00:00:00.000Z",
+              content: "dicoding123",
+            },
+          ],
+        },
+        {
+          id: "comment-456",
+          username: "Dicoding",
+          date: "2024-08-01T00:00:00.000Z",
+          content: "dicoding123456",
+          replies: [
+            {
+              id: "reply-123",
+              username: "Dicoding",
               date: "2024-08-01T00:00:00.000Z",
               content: "dicoding123",
             },
@@ -40,13 +55,15 @@ describe("Thread Details UseCase", () => {
       title: "dicoding123",
       body: "dicoding123 gacor gacor gacor",
       date: "2024-08-01T00:00:00.000Z",
-      username: "user-123",
+      owner: "user-123",
+      created_at: "2024-08-01T00:00:00.000Z",
+      updated_at: "2024-08-01T00:00:00.000Z",
     };
 
     const commentData = [
       {
         id: "comment-123",
-        username: "user-123",
+        owner: "user-123",
         date: "2024-08-01T00:00:00.000Z",
         content: "dicoding123",
         is_delete: 0,
@@ -57,7 +74,7 @@ describe("Thread Details UseCase", () => {
       {
         id: "reply-123",
         content: "dicoding123",
-        username: "user-123",
+        owner: "user-123",
         date: "2024-08-01T00:00:00.000Z",
         is_delete: 0,
       },
@@ -67,7 +84,8 @@ describe("Thread Details UseCase", () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
-
+    const mockUserRepository = new UserRepository();
+    
     // Mock ThreadRepository
     mockThreadRepository.verifyThreadAvailability = jest.fn(() => Promise.resolve());
     mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(threadData));
@@ -75,12 +93,25 @@ describe("Thread Details UseCase", () => {
     // Mock CommentRepository
     mockCommentRepository.getCommentsByThreadId = jest.fn(() => 
       Promise.resolve(
-        commentData.map(comment => ({
-          id: comment.id,
-          username: comment.username,
-          date: comment.date,
-          content: comment.content,
-        }))
+        [{
+          id: "comment-123",
+          thread_id: "thread-123",
+          content: "dicoding123",
+          owner_id: "user-123",
+          created_at: "2024-08-01T00:00:00.000Z",
+          updated_at: "2024-08-01T00:00:00.000Z",
+          date: "2024-08-01T00:00:00.000Z",
+          is_delete: 0
+        },{
+          id: "comment-456",
+          thread_id: "thread-123",
+          content: "dicoding123456",
+          owner_id: "user-123",
+          created_at: "2024-08-01T00:00:00.000Z",
+          updated_at: "2024-08-01T00:00:00.000Z",
+          date: "2024-08-01T00:00:00.000Z",
+          is_delete: 0
+        }]
       )
     );
 
@@ -92,16 +123,20 @@ describe("Thread Details UseCase", () => {
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
+      userRepository: mockUserRepository
     });
 
+    //Mock UserRepository
+    mockUserRepository.getUserById = jest.fn(() => Promise.resolve({id: "user-123",username: "Dicoding"}));
     // Action
-    const threadDetails = await threadDetailsUseCase.execute(useCasePayload);
+    const threadDetails = await threadDetailsUseCase.execute(useCasePayload.id);
 
     // Assert
     expect(mockThreadRepository.verifyThreadAvailability).toBeCalledWith(useCasePayload.id);
     expect(mockThreadRepository.getThreadById).toBeCalledWith(useCasePayload.id);
     expect(mockCommentRepository.getCommentsByThreadId).toBeCalledWith(useCasePayload.id);
     expect(mockReplyRepository.getRepliesByCommentId).toBeCalledWith(commentData[0].id);
+    expect(mockUserRepository.getUserById).toBeCalledWith("user-123");
     expect(threadDetails).toStrictEqual(expectedThreadDetails);
   });
 });

@@ -8,26 +8,21 @@ describe("a PostedThread entities", () => {
       body: "dicoding123",
     };
 
-    // Action and Assert
-    expect(() =>
-      new PostedThread(payload).toThrow(
-        "POSTED_THREAD.NOT_CONTAIN_NEEDED_PROPERTY"
-      )
-    );
+  // Action and Assert
+  expect(() => new PostedThread(payload)).toThrowError(
+    "POSTED_THREAD.NOT_CONTAIN_NEEDED_PROPERTY"
+  );
   });
   it("should throw error when payload did not meet data type specification", () => {
     // Arrange
     const payload = {
       id: 123,
       title: "dicoding123",
-      owner: false,
+      owner: "1234",
     };
     // Action and Assert
-    expect(() =>
-      new PostedThread(payload).toThrow(
-        "POSTED_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION"
-      )
-    );
+    expect(()=> new PostedThread(payload)).toThrowError(
+      "POSTED_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION")
   });
   it("should create PostedThread object correctly", () => {
     // Arrange

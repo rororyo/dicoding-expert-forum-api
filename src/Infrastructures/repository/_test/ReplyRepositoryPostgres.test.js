@@ -41,6 +41,13 @@ describe('a ReplyRepositoryPostgres interface', () => {
       // Assert
       const reply = await RepliesTableTestHelper.getReplyById('reply-123');
       expect(reply).toHaveLength(1);
+      expect(reply[0].id).toEqual('reply-123');
+      expect(reply[0].comment_id).toEqual(commentId);
+      expect(reply[0].content).toEqual(replyPayload.content);
+      expect(reply[0].owner_id).toEqual(userId);
+      expect(reply[0].thread_id).toEqual(threadId);
+      expect(reply[0].is_delete).toEqual(0);
+      expect(reply[0].created_at).toBeDefined();
       expect(postedReply).toStrictEqual({
         id: 'reply-123',
         content: replyPayload.content,
@@ -60,8 +67,9 @@ describe('a ReplyRepositoryPostgres interface', () => {
       // Assert
       expect(reply.id).toEqual('reply-123');
       expect(reply.content).toEqual('sebuah reply');
-      expect(reply.username).toEqual('dicoding');
+      expect(reply.owner).toEqual('user-123');
       expect(reply.date).toBeDefined();
+      expect(reply.is_delete).toEqual(0);
     })
     })
     describe('a getRepliesByCommentId function', () => { 
@@ -90,12 +98,20 @@ describe('a ReplyRepositoryPostgres interface', () => {
         // Assert
         expect(replies).toHaveLength(2);
         expect(replies[0].id).toEqual('reply-123');
+        expect(replies[0].comment_id).toEqual(commentId);
         expect(replies[0].content).toEqual('sebuah reply');
-        expect(replies[0].username).toEqual('dicoding');
+        expect(replies[0].owner_id).toEqual(userId);
+        expect(replies[0].thread_id).toEqual(threadId);
+        expect(replies[0].is_delete).toEqual(0);
+        expect(replies[0].created_at).toBeDefined();
         expect(replies[0].date).toBeDefined();
         expect(replies[1].id).toEqual('reply-456');
+        expect(replies[1].comment_id).toEqual(commentId);
         expect(replies[1].content).toEqual('sebuah reply 2');
-        expect(replies[1].username).toEqual('dicoding');
+        expect(replies[1].owner_id).toEqual(userId);
+        expect(replies[1].thread_id).toEqual(threadId);
+        expect(replies[1].is_delete).toEqual(0);
+        expect(replies[1].created_at).toBeDefined();
         expect(replies[1].date).toBeDefined();
       })
      })
@@ -137,7 +153,7 @@ describe('a ReplyRepositoryPostgres interface', () => {
       })
       })
       describe('a deleteReply function', () => { 
-        it('should delete reply and persist reply correctly', async () => {
+        it('should mark delete reply and persist reply correctly', async () => {
           // Arrange 
           const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool,() => "123");
           await replyRepositoryPostgres.postReply({
@@ -147,7 +163,11 @@ describe('a ReplyRepositoryPostgres interface', () => {
           await replyRepositoryPostgres.deleteReply('reply-123',userId);
           // Assert
           const reply = await replyRepositoryPostgres.getReplyById('reply-123');
-          expect(reply.content).toEqual('**balasan telah dihapus**');
+          expect(reply.id).toEqual('reply-123');
+          expect(reply.content).toEqual('sebuah reply untuk di hapus');
+          expect(reply.owner).toEqual('user-123');
+          expect(reply.date).toBeDefined();
+          expect(reply.is_delete).toEqual(1);
         })
        })
 })

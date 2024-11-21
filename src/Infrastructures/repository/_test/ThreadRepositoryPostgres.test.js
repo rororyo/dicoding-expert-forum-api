@@ -56,8 +56,12 @@ describe("a ThreadRepositoryPostgres interface", () => {
           })
         );
         expect(thread).toHaveLength(1);
+        expect(thread[0].id).toEqual("thread-h_125124113asdaasawda");
         expect(thread[0].title).toEqual("dicoding");
+        expect(thread[0].body).toEqual("dicoding.com");
         expect(thread[0].owner).toEqual("user-123");
+        expect(thread[0].created_at).toBeDefined();
+        expect(thread[0].updated_at).toBeDefined();
       });
     });
     describe("a getThreadById function", () => {
@@ -88,7 +92,9 @@ describe("a ThreadRepositoryPostgres interface", () => {
         expect(thread.title).toEqual("dicoding");
         expect(thread.body).toEqual("dicoding.com");
         expect(thread.date).toBeDefined();
-        expect(thread.username).toEqual("dicoding");
+        expect(thread.owner).toEqual("user-123");
+        expect(thread.created_at).toBeDefined();
+        expect(thread.updated_at).toBeDefined();
       });
     });
     describe("a verifyThreadAvailability function", () => {

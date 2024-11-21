@@ -112,11 +112,21 @@ describe("/threads/{threadId}/comments endpoint", () => {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const { statusCode, payload } = response;
+      const resJson = JSON.parse(payload);
+      const persistedComment = await CommentsTableTestHelper.getCommentById(
+        JSON.parse(payload).data.addedComment.id
+      )
       expect(statusCode).toEqual(201);
-      expect(JSON.parse(payload).status).toEqual("success");
-      expect(JSON.parse(payload).data.addedComment.content).toEqual(
-        "dicoding.com"
-      );
+      expect(resJson.status).toEqual("success");
+      expect(resJson.data.addedComment.id).toBeDefined();
+      expect(resJson.data.addedComment.content).toEqual("dicoding.com");
+      expect(resJson.data.addedComment.owner).toBeDefined();
+
+      expect(persistedComment[0].id).toEqual(JSON.parse(payload).data.addedComment.id);
+      expect(persistedComment[0].thread_id).toEqual(threadId);
+      expect(persistedComment[0].content).toEqual(resJson.data.addedComment.content);
+      expect(persistedComment[0].owner_id).toEqual(resJson.data.addedComment.owner);
+      expect(persistedComment[0].created_at).toBeDefined();
     });
   });
   describe("when DELETE /threads/{threadId}/comments/{commentId}", () => {

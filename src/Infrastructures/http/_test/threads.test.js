@@ -114,7 +114,7 @@ describe('a /threads endpoint', () => {
       expect(responseJson.status).toEqual('fail')
       expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai')
     })
-    it('should return 201 and create thread', async () => {
+    it('should return 201 ,create thread and persist it', async () => {
       // Arrange
       const loginPayload = {
         username: 'dicoding',
@@ -150,7 +150,6 @@ describe('a /threads endpoint', () => {
         }
       })
       const responseJson = JSON.parse(response.payload);
-
       // Assert
       expect(response.statusCode).toEqual(201)
       expect(responseJson.status).toEqual('success')
@@ -224,6 +223,28 @@ describe('a /threads endpoint', () => {
         headers: { Authorization: `Bearer ${resAuth.data.accessToken}` },
       });
       const threadResponse = JSON.parse(thread.payload);
+      const comment = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadResponse.data.addedThread.id}/comments`,
+        payload: {
+          content: 'lorem ipsum dolor sit amet'
+        },
+        headers: {
+          Authorization: `Bearer ${resAuth.data.accessToken}`
+        }
+      })
+      const commentResponse = JSON.parse(comment.payload)
+      const reply = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadResponse.data.addedThread.id}/comments/${commentResponse.data.addedComment.id}/replies`,
+        payload: {
+          content: 'lorem ipsum dolor sit amet reply'
+        },
+        headers: {
+          Authorization: `Bearer ${resAuth.data.accessToken}`
+        }
+      })
+      const replyResponse = JSON.parse(reply.payload)
       // Action
       const response = await server.inject({
         method: 'GET',
@@ -232,11 +253,26 @@ describe('a /threads endpoint', () => {
           Authorization: `Bearer ${resAuth.data.accessToken}`
         }
       })
+    
       const responseJson = JSON.parse(response.payload)
       // Assert
       expect(response.statusCode).toEqual(200)
       expect(responseJson.status).toEqual('success')
+      expect(responseJson.data.thread.id).toEqual(threadResponse.data.addedThread.id)
+      expect(responseJson.data.thread.username).toEqual('dicoding')
       expect(responseJson.data.thread.title).toEqual(threadResponse.data.addedThread.title)
+      expect(responseJson.data.thread.body).toEqual('lorem ipsum dolorr sit amet')
+      expect(responseJson.data.thread.date).toBeDefined()
+      expect(responseJson.data.thread.comments.length).toEqual(1)
+      expect(responseJson.data.thread.comments[0].id).toEqual(commentResponse.data.addedComment.id)
+      expect(responseJson.data.thread.comments[0].username).toEqual('dicoding')
+      expect(responseJson.data.thread.comments[0].content).toEqual(commentResponse.data.addedComment.content)
+      expect(responseJson.data.thread.comments[0].date).toBeDefined()
+      expect(responseJson.data.thread.comments[0].replies.length).toEqual(1)
+      expect(responseJson.data.thread.comments[0].replies[0].id).toEqual(replyResponse.data.addedReply.id)
+      expect(responseJson.data.thread.comments[0].replies[0].username).toEqual('dicoding')
+      expect(responseJson.data.thread.comments[0].replies[0].content).toEqual(replyResponse.data.addedReply.content)
+      expect(responseJson.data.thread.comments[0].replies[0].date).toBeDefined()
     })
     })
  })

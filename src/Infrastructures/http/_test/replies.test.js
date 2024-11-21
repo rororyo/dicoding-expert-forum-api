@@ -6,8 +6,12 @@ const pool = require("../../database/postgres/pool");
 const createServer = require("../createServer");
 const container = require("../../container");
 const ReplyRepositoryPostgres = require("../../repository/ReplyRepositoryPostgres");
+const ReplyDetails = require("../../../Domains/replies/entities/ReplyDetails");
 
 describe('a /threads/{threadId}/comments/{commentId}/replies endpoint', () => {
+  const replyPayload = {
+    content:'sebuah balasan',
+  }
   const commentPayload = {
     content: 'sebuah comment',
   };
@@ -106,8 +110,6 @@ describe('a /threads/{threadId}/comments/{commentId}/replies endpoint', () => {
     })
     it('should return 201 and persisted reply', async () => {
       const token = await registerAndLoginUser();
-      await ThreadsTableTestHelper.addThread(threadPayload);
-      await CommentsTableTestHelper.addComment(commentPayload)
 
       const thread = await serverInstance.inject({
         method: "POST",
@@ -130,18 +132,30 @@ describe('a /threads/{threadId}/comments/{commentId}/replies endpoint', () => {
       const response = await serverInstance.inject({
         method: "POST",
         url: `/threads/${thread.result.data.addedThread.id}/comments/${comment.result.data.addedComment.id}/replies`,
-        payload: commentPayload,
+        payload: replyPayload,
         headers: {
           Authorization: `Bearer ${token}`,
         }
       })
+
       const responseBody = JSON.parse(response.payload);
+      const persistedReply = await RepliesTableTestHelper.getReplyById(response.result.data.addedReply.id);
 
       expect(response.statusCode).toBe(201);
       expect(responseBody.status).toBe('success');
       expect(responseBody.data.addedReply).toBeDefined();
       expect(responseBody.data.addedReply.id).toBeDefined();
-      expect(responseBody.data.addedReply.content).toBe(commentPayload.content);
+      expect(responseBody.data.addedReply.content).toBe(replyPayload.content);
+      expect(responseBody.data.addedReply.owner).toBeDefined();
+
+      expect(persistedReply[0].id).toEqual(responseBody.data.addedReply.id);
+      expect(persistedReply[0].comment_id).toEqual(comment.result.data.addedComment.id);
+      expect(persistedReply[0].content).toEqual(responseBody.data.addedReply.content);
+      expect(persistedReply[0].owner_id).toEqual(responseBody.data.addedReply.owner);1
+      expect(persistedReply[0].thread_id).toEqual(thread.result.data.addedThread.id);
+      expect(persistedReply[0].created_at).toBeDefined();
+
+
     })
   });
   describe('when DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}', () => { 
@@ -296,9 +310,6 @@ describe('a /threads/{threadId}/comments/{commentId}/replies endpoint', () => {
       Authorization: `Bearer ${token}`,
     }
   })
-  const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool,{});
-  const deletedReplyDetails = await replyRepositoryPostgres.getReplyById(reply.result.data.addedReply.id);
-  expect(deletedReplyDetails.content).toBe('**balasan telah dihapus**');
   expect(deleteReply.statusCode).toBe(200);
   const responseBody = JSON.parse(deleteReply.payload);
   expect(responseBody.status).toBe('success');

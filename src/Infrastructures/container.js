@@ -259,6 +259,9 @@ container.register([
       },{
         name:'replyRepository',
         internal:ReplyRepository.name
+      },{
+        name:'userRepository',
+        internal:UserRepository.name
       }]
     }
   },

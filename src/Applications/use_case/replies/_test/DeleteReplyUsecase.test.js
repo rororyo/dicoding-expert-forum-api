@@ -7,9 +7,6 @@ const DeleteReplyUseCase = require("../DeleteReplyUseCase")
 describe('a DeleteReplyUseCase', () => { 
   it('should orchestrate the delete reply action correctly', async () => {
     // Arrange
-    const useCaseReplyPayload = {
-      content: 'sebuah reply'
-    }
     const useCaseUserPayload = {
       id: 'user-123'
     }
@@ -27,26 +24,25 @@ describe('a DeleteReplyUseCase', () => {
       username: 'dicoding',
   })
 
-    const mockDeletedReply = new ReplyDetails({
-      id: 'reply-123',
-      content: '**balasan telah dihapus**',
-      date: '2021-08-08T07:22:33.555Z',
-      username: 'dicoding',
-    })
-
     const mockReplyRepository = new ReplyRepository()
     const mockThreadRepository = new ThreadRepository()
     const mockCommentRepository = new CommentRepository()
 
     // Mock implementations without returning expected value directly
-    mockThreadRepository.verifyThreadAvailability = jest.fn().mockResolvedValue(undefined);
-    mockCommentRepository.verifyCommentAvailability = jest.fn().mockResolvedValue(undefined);
-    mockReplyRepository.verifyReplyAvailability = jest.fn().mockResolvedValue(undefined);
+    mockThreadRepository.verifyThreadAvailability = jest.fn().mockImplementation(() => Promise.resolve());
+    mockCommentRepository.verifyCommentAvailability = jest.fn().mockImplementation(() => Promise.resolve());
+    mockReplyRepository.verifyReplyAvailability = jest.fn().mockImplementation(() => Promise.resolve());
 
     // Simulate getting a reply by ID and deleting the reply
-    mockReplyRepository.getReplyById = jest.fn().mockImplementation(() => Promise.resolve(mockReplyDetails));
-    mockReplyRepository.verifyReplyOwner = jest.fn().mockResolvedValue(undefined);
-    mockReplyRepository.deleteReply = jest.fn().mockImplementation(() => Promise.resolve(mockDeletedReply));
+    mockReplyRepository.getReplyById = jest.fn().mockImplementation(() => Promise.resolve({
+      id: 'reply-123',
+      content: 'sebuah reply',
+      owner: 'user-123',
+      date: '2021-08-08T07:22:33.555Z',
+      is_delete: 0
+    }));
+    mockReplyRepository.verifyReplyOwner = jest.fn().mockImplementation(() => Promise.resolve());
+    mockReplyRepository.deleteReply = jest.fn().mockImplementation(() => Promise.resolve());
 
     // Action
     const deleteReplyUseCase = new DeleteReplyUseCase({

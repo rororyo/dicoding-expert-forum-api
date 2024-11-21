@@ -1,3 +1,4 @@
+//TODO: no data aggregation
 const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
 const InvariantError = require("../../Commons/exceptions/InvariantError");
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
@@ -28,13 +29,13 @@ class CommentRepositoryPostgres  extends CommentRepository{
   }
   async getCommentById(commentId){
     const query = {
-      text: 'SELECT * FROM comments WHERE id = $1',
+      text: 'SELECT *,created_at as date FROM comments WHERE id = $1',
       values: [commentId]
     }
     const result = await this._pool.query(query)
     return [{
       id: result.rows[0].id,
-      content: result.rows[0].is_delete === 1 ? '**komentar telah dihapus**' : result.rows[0].content,
+      content: result.rows[0].content,
       date: result.rows[0].created_at,
       owner: result.rows[0].owner_id,
       is_delete: result.rows[0].is_delete
@@ -43,7 +44,7 @@ class CommentRepositoryPostgres  extends CommentRepository{
   }
   async getCommentsByThreadId(threadId){
     const query = {
-      text: 'SELECT comments.id,users.username,comments.content,comments.created_at as date,comments.is_delete FROM comments join users on comments.owner_id = users.id WHERE thread_id = $1 ',
+      text: 'SELECT *,created_at as date FROM comments WHERE thread_id = $1 ',
       values: [threadId]
     }
     const result = await this._pool.query(query)
@@ -77,8 +78,7 @@ class CommentRepositoryPostgres  extends CommentRepository{
       text: 'UPDATE comments SET  is_delete = 1 WHERE id = $1 AND thread_id = $2 and owner_id = $3 returning id',
       values: [commentId,threadId,ownerId]
     }
-    const result = await this._pool.query(query)
-    return result.rows
+    await this._pool.query(query)
   }
 }
 

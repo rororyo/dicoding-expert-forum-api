@@ -25,20 +25,21 @@ class ReplyRepositoryPostgres extends ReplyRepository{
   }
   async getReplyById(replyId){
     const query = {
-      text: 'SELECT replies.id,users.username, replies.content, replies.created_at as date,replies.is_delete FROM replies join users on replies.owner_id = users.id WHERE replies.id = $1',
+      text: 'select *,created_at as date from replies WHERE id = $1',
       values: [replyId],
     }
     const result = await this._pool.query(query)
     return {
       id: result.rows[0].id,
-      content: result.rows[0].is_delete === 1 ? '**balasan telah dihapus**' : result.rows[0].content,
-      username: result.rows[0].username,
+      content: result.rows[0].content,
+      owner: result.rows[0].owner_id,
       date: result.rows[0].date,
+      is_delete: result.rows[0].is_delete
     }
   }
   async getRepliesByCommentId(commentId){
     const query = {
-      text:'SELECT replies.id,users.username, replies.content, replies.created_at as date ,replies.is_delete FROM replies join users on replies.owner_id = users.id WHERE replies.comment_id = $1 order by replies.created_at asc',
+      text:'SELECT *,created_at as date FROM replies WHERE comment_id = $1 order by created_at asc',
       values: [commentId],
     }
     const result = await this._pool.query(query)
@@ -68,9 +69,8 @@ class ReplyRepositoryPostgres extends ReplyRepository{
     const query = {
       text:'UPDATE replies SET is_delete = 1 WHERE id = $1 returning id',
       values: [replyId],
-    }
-    const result = await this._pool.query(query)
-    return result.rows
+    } 
+    await this._pool.query(query)
   }
 }
 

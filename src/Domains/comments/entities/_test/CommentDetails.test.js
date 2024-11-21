@@ -22,6 +22,16 @@ describe("a CommentDetails entities", () => {
       "COMMENT_DETAILS.NOT_CONTAIN_NEEDED_PROPERTY"
     );
   });
+  it('should throw error when comment attributes did not contain needed property', () => {
+    const payload = {
+      comments: [{
+        test:'halohalo'
+      }]
+    }
+    expect(() => new CommentDetails(payload)).toThrowError(
+      "COMMENT_DETAILS.NOT_CONTAIN_NEEDED_PROPERTY"
+    );
+  })
 
   it("should throw error when payload did not meet data type specification", () => {
     const payload = {

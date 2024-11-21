@@ -44,11 +44,16 @@ describe("a CommentRepositoryPostgres interface", () => {
   
       // Action
       const addedComment = await commentRepositoryPostgres.addComment(newComment);
-  
+      const persistedComment = await commentRepositoryPostgres.getCommentById('comment-_pby_123');
       // Assert
       expect(addedComment.id).toEqual('comment-_pby_123');
       expect(addedComment.content).toEqual(newComment.content);
       expect(addedComment.owner).toEqual(newComment.owner);
+      expect(persistedComment[0].id).toEqual('comment-_pby_123');
+      expect(persistedComment[0].content).toEqual(newComment.content);
+      expect(persistedComment[0].owner).toEqual(newComment.owner);
+      expect(persistedComment[0].is_delete).toEqual(0);
+      expect(persistedComment[0].date).toBeDefined();
     });
   });
   
@@ -66,7 +71,6 @@ describe("a CommentRepositoryPostgres interface", () => {
       // Action
       await commentRepositoryPostgres.addComment(newComment);
       const comment = await commentRepositoryPostgres.getCommentById('comment-_pby_456');
-  
       // Assert
       expect(comment[0].id).toEqual('comment-_pby_456');
       expect(comment[0].content).toEqual(newComment.content);
@@ -88,12 +92,15 @@ describe("a CommentRepositoryPostgres interface", () => {
       // Action
       const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "1122");
       await commentRepositoryPostgres.addComment(newComment);
-
       const comments = await commentRepositoryPostgres.getCommentsByThreadId('thread-h_1122');
       expect(Array.isArray(comments)).toBe(true);
       expect(comments[0].id).toEqual('comment-_pby_1122');
+      expect(comments[0].thread_id).toEqual('thread-h_1122');
       expect(comments[0].content).toEqual(newComment.content);
-      expect(comments[0].username).toEqual('user456');
+      expect(comments[0].owner_id).toEqual('user-456');
+      expect(comments[0].is_delete).toEqual(0);
+      expect(comments[0].created_at).toBeDefined();
+      expect(comments[0].updated_at).toBeDefined();
       expect(comments[0].date).toBeDefined();
     })
    })
@@ -102,7 +109,7 @@ describe("a CommentRepositoryPostgres interface", () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "456");
       // Action and Assert
-      await expect(commentRepositoryPostgres.verifyCommentAvailability('idgakvalid')).rejects.toThrow(NotFoundError);
+      await expect(commentRepositoryPostgres.verifyCommentAvailability('idgakvalid')).rejects.toThrow(new NotFoundError('komentar tidak ditemukan'));
     })
     it('should not throw not found error when comment found', async () => {
       // Arrange
@@ -113,7 +120,7 @@ describe("a CommentRepositoryPostgres interface", () => {
         content: "dicoding 1212",
       }))
       // Action and Assert
-      await expect(commentRepositoryPostgres.getCommentById('comment-_pby_45678')).resolves.not.toThrow(NotFoundError);
+      await expect(commentRepositoryPostgres.verifyCommentAvailability('comment-_pby_45678')).resolves.not.toThrow(new NotFoundError('komentar tidak ditemukan'));
     })
     })
   describe('a verifyCommentOwner function', () => { 
@@ -141,7 +148,7 @@ describe("a CommentRepositoryPostgres interface", () => {
      })
    })
    describe('a deleteComment function', () => { 
-    it('should delete comment correctly', async () => {
+    it('should mark deleted comment correctly', async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, () => "abc");
       await commentRepositoryPostgres.addComment(new PostComment({
@@ -153,10 +160,12 @@ describe("a CommentRepositoryPostgres interface", () => {
       // Action
       await commentRepositoryPostgres.deleteComment('comment-_pby_abc', threadId, userId);
       const deletedComment = await commentRepositoryPostgres.getCommentById('comment-_pby_abc');
-  
       // Assert
+      expect(deletedComment[0].id).toEqual('comment-_pby_abc');
+      expect(deletedComment[0].content).toEqual('dicoding 1212');
+      expect(deletedComment[0].date).toBeDefined();
+      expect(deletedComment[0].owner).toEqual('user-123');
       expect(deletedComment[0].is_delete).toEqual(1);
-      expect(deletedComment[0].content).toEqual('**komentar telah dihapus**');
     });
   });
   

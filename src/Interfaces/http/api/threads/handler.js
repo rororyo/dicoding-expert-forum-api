@@ -28,7 +28,7 @@ class ThreadsHandler {
     const useCasePayload = {
       id: request.params.threadId
     }
-    const thread = await threadDetailsUseCase.execute(useCasePayload);
+    const thread = await threadDetailsUseCase.execute(useCasePayload.id);
     return h.response({
       status: 'success',
       data: {
