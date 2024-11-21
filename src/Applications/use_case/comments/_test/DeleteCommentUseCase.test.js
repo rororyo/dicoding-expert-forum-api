@@ -18,15 +18,6 @@ describe("a Delete Comment Use Case", () => {
     // Mock functions
     mockThreadRepository.verifyThreadAvailability = jest.fn(() => Promise.resolve());
     mockCommentRepository.verifyCommentAvailability = jest.fn(() => Promise.resolve());
-    mockCommentRepository.getCommentById = jest.fn(() =>
-      Promise.resolve({
-        id: "comment-yksuCoxM2s4MMrZJO-qVD",
-        content: "Sebuah komentar yang belum di hapus",
-        date: "2021-08-08T07:26:21.338Z",
-        owner: "user-123",
-        is_delete: 0
-      })
-    );
     mockCommentRepository.verifyCommentOwner = jest.fn(() => Promise.resolve());
     mockCommentRepository.deleteComment = jest.fn(() => Promise.resolve());
 

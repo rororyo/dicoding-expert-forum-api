@@ -5,6 +5,7 @@ const AuthorizationError = require("../../../Commons/exceptions/AuthorizationErr
 const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const PostComment = require("../../../Domains/comments/entities/PostComment");
+const PostedComment = require("../../../Domains/comments/entities/PostedComment");
 const pool = require("../../database/postgres/pool");
 const CommentRepositoryPostgres = require("../CommentRepositoryPostgres");
 
@@ -45,15 +46,20 @@ describe("a CommentRepositoryPostgres interface", () => {
       // Action
       const addedComment = await commentRepositoryPostgres.addComment(newComment);
       const persistedComment = await commentRepositoryPostgres.getCommentById('comment-_pby_123');
+  
       // Assert
-      expect(addedComment.id).toEqual('comment-_pby_123');
-      expect(addedComment.content).toEqual(newComment.content);
-      expect(addedComment.owner).toEqual(newComment.owner);
-      expect(persistedComment[0].id).toEqual('comment-_pby_123');
-      expect(persistedComment[0].content).toEqual(newComment.content);
-      expect(persistedComment[0].owner).toEqual(newComment.owner);
-      expect(persistedComment[0].is_delete).toEqual(0);
-      expect(persistedComment[0].date).toBeDefined();
+      expect(addedComment).toStrictEqual(new PostedComment({
+        id: 'comment-_pby_123',
+        content: newComment.content,
+        owner: newComment.owner,
+      }));
+      expect(persistedComment).toStrictEqual([{
+        id: 'comment-_pby_123',
+        content: newComment.content,
+        owner: newComment.owner,
+        date: expect.any(Date),
+        is_delete: 0
+      }])
     });
   });
   
@@ -72,11 +78,13 @@ describe("a CommentRepositoryPostgres interface", () => {
       await commentRepositoryPostgres.addComment(newComment);
       const comment = await commentRepositoryPostgres.getCommentById('comment-_pby_456');
       // Assert
-      expect(comment[0].id).toEqual('comment-_pby_456');
-      expect(comment[0].content).toEqual(newComment.content);
-      expect(comment[0].owner).toEqual(newComment.owner);
-      expect(comment[0].date).toBeDefined();
-      expect(comment[0].is_delete).toEqual(0);
+      expect(comment).toStrictEqual([{
+        id: 'comment-_pby_456',
+        content: newComment.content,
+        owner: newComment.owner,
+        date: expect.any(Date),
+        is_delete: 0
+      }]);
     });
   });
   
@@ -93,6 +101,14 @@ describe("a CommentRepositoryPostgres interface", () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "1122");
       await commentRepositoryPostgres.addComment(newComment);
       const comments = await commentRepositoryPostgres.getCommentsByThreadId('thread-h_1122');
+      // Assert
+      expect(comments).toStrictEqual([{
+        id: 'comment-_pby_1122',
+        content: newComment.content,
+        owner_id: newComment.owner,
+        date: expect.any(Date),
+        is_delete: 0
+      }])
       expect(Array.isArray(comments)).toBe(true);
       expect(comments[0].id).toEqual('comment-_pby_1122');
       expect(comments[0].thread_id).toEqual('thread-h_1122');

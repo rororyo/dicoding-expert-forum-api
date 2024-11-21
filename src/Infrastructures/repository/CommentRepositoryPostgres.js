@@ -1,6 +1,4 @@
-//TODO: no data aggregation
 const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
-const InvariantError = require("../../Commons/exceptions/InvariantError");
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const CommentRepository = require("../../Domains/comments/CommentRepository");
 const PostedComment = require("../../Domains/comments/entities/PostedComment");
@@ -71,7 +69,6 @@ class CommentRepositoryPostgres  extends CommentRepository{
     if(result.rows.length === 0){
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini')
     }
-    return result.rows
   }
   async deleteComment(commentId, threadId, ownerId){ 
     const query = {

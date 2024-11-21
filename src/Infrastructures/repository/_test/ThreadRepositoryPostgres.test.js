@@ -55,13 +55,14 @@ describe("a ThreadRepositoryPostgres interface", () => {
             owner: "user-123",
           })
         );
-        expect(thread).toHaveLength(1);
-        expect(thread[0].id).toEqual("thread-h_125124113asdaasawda");
-        expect(thread[0].title).toEqual("dicoding");
-        expect(thread[0].body).toEqual("dicoding.com");
-        expect(thread[0].owner).toEqual("user-123");
-        expect(thread[0].created_at).toBeDefined();
-        expect(thread[0].updated_at).toBeDefined();
+        expect(thread).toStrictEqual([{
+          id: "thread-h_125124113asdaasawda",
+          title: "dicoding",
+          body: "dicoding.com",
+          owner: "user-123",
+          created_at: expect.any(Date),
+          updated_at: expect.any(Date),
+        }])
       });
     });
     describe("a getThreadById function", () => {
@@ -88,13 +89,15 @@ describe("a ThreadRepositoryPostgres interface", () => {
           "thread-h_123"
         );
         // Assert
-        expect(thread.id).toEqual("thread-h_123");
-        expect(thread.title).toEqual("dicoding");
-        expect(thread.body).toEqual("dicoding.com");
-        expect(thread.date).toBeDefined();
-        expect(thread.owner).toEqual("user-123");
-        expect(thread.created_at).toBeDefined();
-        expect(thread.updated_at).toBeDefined();
+        expect(thread).toStrictEqual({
+          id: "thread-h_123",
+          title: "dicoding",
+          body: "dicoding.com",
+          date: expect.any(Date),
+          owner: "user-123",
+          created_at: expect.any(Date),
+          updated_at: expect.any(Date),
+        })
       });
     });
     describe("a verifyThreadAvailability function", () => {
