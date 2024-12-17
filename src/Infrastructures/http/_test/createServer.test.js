@@ -36,7 +36,8 @@ describe('HTTP server', () => {
     expect(response.statusCode).toEqual(500);
     expect(responseJson.status).toEqual('error');
     expect(responseJson.message).toEqual('terjadi kegagalan pada server kami');
-  });
+  }); 
+  //test 
   describe('when GET /', () => {
     it('should return 200 and hello world', async () => {
       // Arrange
