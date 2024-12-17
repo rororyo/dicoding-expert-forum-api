@@ -8,14 +8,14 @@ const ThreadsTableTestHelper = {
     body = 'dicoding.com',
     created_at = new Date(),
     owner = 'user-123',
+    updated_at = new Date(), // Add this
   }){
     const query = {
-      text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5 ,$6) on conflict (id) do nothing returning id,title,owner',
-      values: [id, title, body, owner, created_at,created_at]
+      text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO NOTHING RETURNING id,title,owner',
+      values: [id, title, body, owner, created_at, updated_at] // Use both created_at and updated_at
     }
     const result = await pool.query(query);
     return result.rows;
-    
   },
   async getThreadById(threadId) {
     const query = {
