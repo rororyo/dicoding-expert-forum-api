@@ -6,7 +6,7 @@ const UsersTableTestHelper = {
     id = 'user-123', username = 'dicoding', password = 'secret', fullname = 'Dicoding Indonesia',
   }) {
     const query = {
-      text: 'INSERT INTO users VALUES($1, $2, $3, $4)',
+      text: 'INSERT INTO users VALUES($1, $2, $3, $4) ON CONFLICT (username) DO NOTHING',
       values: [id, username, password, fullname],
     };
 

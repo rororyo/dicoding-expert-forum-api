@@ -9,7 +9,7 @@ const LikeTableTestHelper = {
     userId = "user-123"
   }) {
     const query = {
-      text: "INSERT INTO likes VALUES($1, $2, $3, $4)",
+      text: "INSERT INTO likes VALUES($1, $2, $3, $4) on conflict (id) do nothing",
       values: [id, threadId,commentId, userId]
     }
     await pool.query(query)

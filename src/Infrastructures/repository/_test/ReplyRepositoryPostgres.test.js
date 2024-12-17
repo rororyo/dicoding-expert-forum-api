@@ -14,6 +14,9 @@ describe('a ReplyRepositoryPostgres interface', () => {
   const threadId = "thread-123";
   const commentId = "comment-123";
   beforeAll(async () => {
+    await UsersTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
     await RepliesTableTestHelper.cleanTable()
     await UsersTableTestHelper.addUser({ id: userId });
     await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
