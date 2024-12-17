@@ -19,9 +19,10 @@ describe("/threads/{threadId}/comments endpoint", () => {
     await pool.end();
   });
 
-  afterEach(async () => {
-    await ThreadsTableTestHelper.cleanTable();
+  beforeEach(async () => {
+    // Ensure all tables are clean before each test
     await UsersTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
     await LikeTableTestHelper.cleanTable();
   });
@@ -35,12 +36,12 @@ describe("/threads/{threadId}/comments endpoint", () => {
     body: 'dicoding123 gacor gacor gacor',
   };
 
-  const registerAndLoginUser = async () => {
+  const registerAndLoginUser = async (username = "dicoding") => {
     await server.inject({
       method: "POST",
       url: "/users",
       payload: {
-        username: "dicoding",
+        username: username,
         password: "password123",
         fullname: "Dicoding Indonesia",
       },
@@ -48,7 +49,7 @@ describe("/threads/{threadId}/comments endpoint", () => {
     const authResponse = await server.inject({
       method: "POST",
       url: "/authentications",
-      payload: { username: "dicoding", password: "password123" },
+      payload: { username: username, password: "password123" },
     });
     accessToken = JSON.parse(authResponse.payload).data.accessToken;
     return accessToken;
@@ -67,18 +68,27 @@ describe("/threads/{threadId}/comments endpoint", () => {
   
   describe('when PUT /threads/{threadId}/comments/{commentId}', () => { 
     it("should return 401 if not authenticated", async () => {
+      // Add a user first
+      await UsersTableTestHelper.addUser({
+        id: "user-123",
+        username: "testuser",
+        fullname: "Test User"
+      });
+
       await ThreadsTableTestHelper.addThread({
         id: "thread-123",
         owner: "user-123",
         title: "dicoding",
         body: "dicoding.com",
       });
+
       await CommentsTableTestHelper.addComment({
         id: "comment-123",
         threadId: "thread-123",
         owner: "user-123",
         content: "dicoding.com",
       });
+
       const response = await server.inject({
         method: "PUT",
         url: "/threads/thread-123/comments/comment-123/likes",
@@ -202,18 +212,27 @@ describe("/threads/{threadId}/comments endpoint", () => {
 
   describe("when DELETE /threads/{threadId}/comments/{commentId}", () => {
     it("should return 401 if not authenticated", async () => {
+      // Add a user first
+      await UsersTableTestHelper.addUser({
+        id: "user-123",
+        username: "testuser",
+        fullname: "Test User"
+      });
+
       await ThreadsTableTestHelper.addThread({
         id: "thread-123",
         owner: "user-123",
         title: "dicoding",
         body: "dicoding.com",
       });
+
       await CommentsTableTestHelper.addComment({
         id: "comment-123",
         threadId: "thread-123",
         owner: "user-123",
         content: "dicoding.com",
       });
+
       const response = await server.inject({
         method: "DELETE",
         url: "/threads/thread-123/comments/comment-123",
@@ -227,12 +246,21 @@ describe("/threads/{threadId}/comments endpoint", () => {
     it('should return 403 if comment owner is not the same as user', async () => {
       await registerAndLoginUser();
       await createThread();
+      
+      // Add another user as the comment owner
+      await UsersTableTestHelper.addUser({
+        id: "bukanuser-123",
+        username: "otheruser",
+        fullname: "Other User"
+      });
+
       await CommentsTableTestHelper.addComment({
         id: "comment-123",
         threadId: threadId,
         owner: "bukanuser-123",
         content: "dicoding.com",
       });
+
       const response = await server.inject({
         method: "DELETE",
         url: `/threads/${threadId}/comments/comment-123`,

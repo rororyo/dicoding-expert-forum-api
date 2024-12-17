@@ -10,7 +10,9 @@ exports.up = pgm => {
     },
     thread_id:{
       type: 'VARCHAR(50)',
-      notNull: true
+      notNull: true,
+      references: 'threads(id)',
+      onDelete: 'CASCADE'
     },
     content: {
       type: 'TEXT',
@@ -18,7 +20,9 @@ exports.up = pgm => {
     },
     owner_id: {
       type: 'VARCHAR(50)',
-      notNull: true
+      notNull: true,
+      references: 'users(id)',
+      onDelete: 'CASCADE'
     },
     is_delete: {
       type: 'int',

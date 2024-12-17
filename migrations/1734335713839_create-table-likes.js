@@ -11,14 +11,20 @@ exports.up = pgm => {
     thread_id: {
       type: 'VARCHAR(50)',
       notNull: true,
+      refences: 'threads(id)',
+      onDelete: 'cascade',
     },
     comment_id: {
       type: 'VARCHAR(50)',
       notNull: true,
+      refences: 'comments(id)',
+      onDelete: 'cascade',
     },
     user_id:{
       type: 'VARCHAR(50)',
-      notNull: true
+      notNull: true,
+      refences: 'users(id)',
+      onDelete: 'cascade'
     },
   })
 };

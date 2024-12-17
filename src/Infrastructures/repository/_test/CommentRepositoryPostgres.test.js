@@ -16,22 +16,30 @@ describe("a CommentRepositoryPostgres interface", () => {
     // Action and Assert
     expect(commentRepositoryPostgres).toBeInstanceOf(CommentRepository);
   })
+
   const userId = "user-123";
   const threadId = "thread-123";
+  const secondUserId = "user-456";
+
   beforeAll(async () => {
     await UsersTableTestHelper.addUser({ id: userId });
-    await UsersTableTestHelper.addUser({ id: "user-456" ,username:"user456"});
+    await UsersTableTestHelper.addUser({ id: secondUserId, username: "user456" });
     await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
+    // Add an additional thread for getCommentsByThreadId test
+    await ThreadsTableTestHelper.addThread({ id: 'thread-h_1122', owner: secondUserId });
   });
+
   afterEach(async () => {
-    await ThreadsTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
   });
-  afterAll(async()=>{
+
+  afterAll(async () => {
     await UsersTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
     await pool.end();
-  })
+  });
+
   describe('a addComment function', () => { 
     it('should persist comment and return added comment correctly', async () => {
       // Arrange
@@ -92,13 +100,13 @@ describe("a CommentRepositoryPostgres interface", () => {
     it('should get comments of a thread correctly', async () => {
       // Arrange
       const commentPayload = {
-        threadId:'thread-h_1122',
-        owner: 'user-456',
+        threadId: 'thread-h_1122',
+        owner: secondUserId,
         content: "dicoding 1212",
       }
       const newComment = new PostComment(commentPayload);
       // Action
-      const commentRepositoryPostgres = new CommentRepositoryPostgres (pool,() => "1122");
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, () => "1122");
       await commentRepositoryPostgres.addComment(newComment);
       const comments = await commentRepositoryPostgres.getCommentsByThreadId('thread-h_1122');
       // Assert
@@ -113,7 +121,7 @@ describe("a CommentRepositoryPostgres interface", () => {
         is_delete: 0
       }])
     })
-   })
+   });
    describe('a verifyCommentAvailability function', () => { 
     it('should throw not found error when comment not found', async () => {
       // Arrange
