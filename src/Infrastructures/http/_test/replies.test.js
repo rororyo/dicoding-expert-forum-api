@@ -5,8 +5,6 @@ const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const pool = require("../../database/postgres/pool");
 const createServer = require("../createServer");
 const container = require("../../container");
-const ReplyRepositoryPostgres = require("../../repository/ReplyRepositoryPostgres");
-const ReplyDetails = require("../../../Domains/replies/entities/ReplyDetails");
 
 describe('a /threads/{threadId}/comments/{commentId}/replies endpoint', () => {
   const replyPayload = {

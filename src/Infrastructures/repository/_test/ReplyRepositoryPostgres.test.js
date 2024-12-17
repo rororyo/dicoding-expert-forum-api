@@ -40,19 +40,20 @@ describe('a ReplyRepositoryPostgres interface', () => {
       const postedReply = await replyRepositoryPostgres.postReply(newReply,threadId,commentId,userId);
       // Assert
       const reply = await RepliesTableTestHelper.getReplyById('reply-123');
-      expect(reply).toHaveLength(1);
-      expect(reply[0].id).toEqual('reply-123');
-      expect(reply[0].comment_id).toEqual(commentId);
-      expect(reply[0].content).toEqual(replyPayload.content);
-      expect(reply[0].owner_id).toEqual(userId);
-      expect(reply[0].thread_id).toEqual(threadId);
-      expect(reply[0].is_delete).toEqual(0);
-      expect(reply[0].created_at).toBeDefined();
-      expect(postedReply).toStrictEqual({
+      expect(reply).toStrictEqual([{
+        id: 'reply-123',
+        comment_id: commentId,
+        content: replyPayload.content,
+        owner_id: userId,
+        thread_id: threadId,
+        is_delete: 0,
+        created_at: expect.any(Date),
+      }])
+      expect(postedReply).toStrictEqual(new AddedReply({
         id: 'reply-123',
         content: replyPayload.content,
         owner: userId,
-      });
+      }));
       
     })
    })
@@ -65,11 +66,13 @@ describe('a ReplyRepositoryPostgres interface', () => {
       // Action
       const reply = await replyRepositoryPostgres.getReplyById('reply-123');
       // Assert
-      expect(reply.id).toEqual('reply-123');
-      expect(reply.content).toEqual('sebuah reply');
-      expect(reply.owner).toEqual('user-123');
-      expect(reply.date).toBeDefined();
-      expect(reply.is_delete).toEqual(0);
+      expect(reply).toStrictEqual({
+        id: 'reply-123',
+        content: 'sebuah reply',
+        owner: 'user-123',
+        date: expect.any(Date),
+        is_delete: 0
+      })
     })
     })
     describe('a getRepliesByCommentId function', () => { 
@@ -96,23 +99,25 @@ describe('a ReplyRepositoryPostgres interface', () => {
         const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool,() => "123");
         const replies = await replyRepositoryPostgres.getRepliesByCommentId(commentId);
         // Assert
-        expect(replies).toHaveLength(2);
-        expect(replies[0].id).toEqual('reply-123');
-        expect(replies[0].comment_id).toEqual(commentId);
-        expect(replies[0].content).toEqual('sebuah reply');
-        expect(replies[0].owner_id).toEqual(userId);
-        expect(replies[0].thread_id).toEqual(threadId);
-        expect(replies[0].is_delete).toEqual(0);
-        expect(replies[0].created_at).toBeDefined();
-        expect(replies[0].date).toBeDefined();
-        expect(replies[1].id).toEqual('reply-456');
-        expect(replies[1].comment_id).toEqual(commentId);
-        expect(replies[1].content).toEqual('sebuah reply 2');
-        expect(replies[1].owner_id).toEqual(userId);
-        expect(replies[1].thread_id).toEqual(threadId);
-        expect(replies[1].is_delete).toEqual(0);
-        expect(replies[1].created_at).toBeDefined();
-        expect(replies[1].date).toBeDefined();
+        expect(replies).toStrictEqual([{
+          id: 'reply-123',
+          comment_id: commentId,
+          content: 'sebuah reply',
+          owner_id: userId,
+          thread_id: threadId,
+          created_at: expect.any(Date),
+          date: expect.any(Date),
+          is_delete: 0
+        },{
+          id: 'reply-456',
+          comment_id: commentId,
+          content: 'sebuah reply 2',
+          owner_id: userId,
+          thread_id: threadId,
+          created_at: expect.any(Date),
+          date: expect.any(Date),
+          is_delete: 0
+        }])
       })
      })
      describe('a verifyReplyAvailability function', () => { 
@@ -163,11 +168,13 @@ describe('a ReplyRepositoryPostgres interface', () => {
           await replyRepositoryPostgres.deleteReply('reply-123',userId);
           // Assert
           const reply = await replyRepositoryPostgres.getReplyById('reply-123');
-          expect(reply.id).toEqual('reply-123');
-          expect(reply.content).toEqual('sebuah reply untuk di hapus');
-          expect(reply.owner).toEqual('user-123');
-          expect(reply.date).toBeDefined();
-          expect(reply.is_delete).toEqual(1);
+          expect(reply).toStrictEqual({
+            id: 'reply-123',
+            content: 'sebuah reply untuk di hapus',
+            owner: 'user-123',
+            date: expect.any(Date),
+            is_delete: 1
+          })
         })
        })
 })

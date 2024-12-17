@@ -1,10 +1,24 @@
+const CommentsTableTestHelper = require("../../../../../tests/CommentsTableTestHelper");
+const LikeTableTestHelper = require("../../../../../tests/LikeTableTestHelper");
+const ThreadsTableTestHelper = require("../../../../../tests/ThreadsTableTestHelper");
 const CommentRepository = require("../../../../Domains/comments/CommentRepository");
+const LikeRepository = require("../../../../Domains/likes/likeRepository");
 const ReplyRepository = require("../../../../Domains/replies/ReplyRepository");
 const ThreadRepository = require("../../../../Domains/threads/ThreadRepository");
 const UserRepository = require("../../../../Domains/users/UserRepository");
 const ThreadDetailsUseCase = require("../ThreadDetailsUseCase");
 
 describe("Thread Details UseCase", () => {
+  beforeAll(async () => {
+    ThreadsTableTestHelper.cleanTable();
+    CommentsTableTestHelper.cleanTable();
+    LikeTableTestHelper.cleanTable();
+  })
+  afterAll(async () => {
+    ThreadsTableTestHelper.cleanTable();
+    CommentsTableTestHelper.cleanTable();
+    LikeTableTestHelper.cleanTable();
+  })
   it("should orchestrate the get thread by id action correctly", async () => {
     // Arrange
     const useCasePayload = {
@@ -23,6 +37,7 @@ describe("Thread Details UseCase", () => {
           username: "Dicoding",
           date: "2024-08-01T00:00:00.000Z",
           content: "dicoding123",
+          likeCount: 0,
           replies: [
             {
               id: "reply-123",
@@ -37,6 +52,7 @@ describe("Thread Details UseCase", () => {
           username: "Dicoding",
           date: "2024-08-01T00:00:00.000Z",
           content: "dicoding123456",
+          likeCount: 0,
           replies: [
             {
               id: "reply-123",
@@ -67,14 +83,18 @@ describe("Thread Details UseCase", () => {
         date: "2024-08-01T00:00:00.000Z",
         content: "dicoding123",
         is_delete: 0,
+        likeCount: 0
       },
     ];
 
     const replyData = [
       {
         id: "reply-123",
+        comment_id: "comment-123",
         content: "dicoding123",
-        owner: "user-123",
+        owner_id: "user-123",
+        thread_id: "thread-123",
+        created_at: "2024-08-01T00:00:00.000Z",
         date: "2024-08-01T00:00:00.000Z",
         is_delete: 0,
       },
@@ -85,6 +105,7 @@ describe("Thread Details UseCase", () => {
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
     const mockUserRepository = new UserRepository();
+    const mockLikeRepository = new LikeRepository();
     
     // Mock ThreadRepository
     mockThreadRepository.verifyThreadAvailability = jest.fn(() => Promise.resolve());
@@ -101,7 +122,8 @@ describe("Thread Details UseCase", () => {
           created_at: "2024-08-01T00:00:00.000Z",
           updated_at: "2024-08-01T00:00:00.000Z",
           date: "2024-08-01T00:00:00.000Z",
-          is_delete: 0
+          is_delete: 0,
+          likeCount: 0
         },{
           id: "comment-456",
           thread_id: "thread-123",
@@ -110,7 +132,8 @@ describe("Thread Details UseCase", () => {
           created_at: "2024-08-01T00:00:00.000Z",
           updated_at: "2024-08-01T00:00:00.000Z",
           date: "2024-08-01T00:00:00.000Z",
-          is_delete: 0
+          is_delete: 0,
+          likeCount: 0
         }]
       )
     );
@@ -123,11 +146,14 @@ describe("Thread Details UseCase", () => {
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
-      userRepository: mockUserRepository
+      userRepository: mockUserRepository,
+      likeRepository: mockLikeRepository
     });
 
     //Mock UserRepository
     mockUserRepository.getUserById = jest.fn(() => Promise.resolve({id: "user-123",username: "Dicoding"}));
+    // Mock LikeRepository
+    mockLikeRepository.getLikeCountByCommentId = jest.fn(() => Promise.resolve("0"));
     // Action
     const threadDetails = await threadDetailsUseCase.execute(useCasePayload.id);
 

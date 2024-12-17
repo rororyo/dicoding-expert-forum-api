@@ -173,12 +173,11 @@ describe('a /threads endpoint', () => {
           fullname: 'Dicoding Indonesia'
         }
       })
-      const authentication = await server.inject({
+       await server.inject({
         method: 'POST',
         url: '/authentications',
         payload: loginPayload
       })
-      const resAuth = JSON.parse(authentication.payload)
 
       // Action
       const response = await server.inject({

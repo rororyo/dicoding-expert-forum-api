@@ -1,3 +1,4 @@
+
 const routes =(handler)=>([
   {
     method: 'POST',
@@ -6,6 +7,14 @@ const routes =(handler)=>([
     options:{
       auth:'forumapi_jwt'
     },
+  },
+  {
+    method: 'PUT',
+    path:'/threads/{threadId}/comments/{commentId}/likes',
+    handler : handler.putLikeActionHandler,
+    options:{
+      auth:'forumapi_jwt'
+    }
   },
   {
     method: 'DELETE',

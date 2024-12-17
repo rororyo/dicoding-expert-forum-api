@@ -104,20 +104,14 @@ describe("a CommentRepositoryPostgres interface", () => {
       // Assert
       expect(comments).toStrictEqual([{
         id: 'comment-_pby_1122',
+        thread_id: 'thread-h_1122',
+        created_at: expect.any(Date),
+        updated_at: expect.any(Date),
         content: newComment.content,
         owner_id: newComment.owner,
         date: expect.any(Date),
         is_delete: 0
       }])
-      expect(Array.isArray(comments)).toBe(true);
-      expect(comments[0].id).toEqual('comment-_pby_1122');
-      expect(comments[0].thread_id).toEqual('thread-h_1122');
-      expect(comments[0].content).toEqual(newComment.content);
-      expect(comments[0].owner_id).toEqual('user-456');
-      expect(comments[0].is_delete).toEqual(0);
-      expect(comments[0].created_at).toBeDefined();
-      expect(comments[0].updated_at).toBeDefined();
-      expect(comments[0].date).toBeDefined();
     })
    })
    describe('a verifyCommentAvailability function', () => { 
@@ -177,11 +171,13 @@ describe("a CommentRepositoryPostgres interface", () => {
       await commentRepositoryPostgres.deleteComment('comment-_pby_abc', threadId, userId);
       const deletedComment = await commentRepositoryPostgres.getCommentById('comment-_pby_abc');
       // Assert
-      expect(deletedComment[0].id).toEqual('comment-_pby_abc');
-      expect(deletedComment[0].content).toEqual('dicoding 1212');
-      expect(deletedComment[0].date).toBeDefined();
-      expect(deletedComment[0].owner).toEqual('user-123');
-      expect(deletedComment[0].is_delete).toEqual(1);
+      expect(deletedComment).toStrictEqual([{
+        id: 'comment-_pby_abc',
+        content: 'dicoding 1212',
+        owner: 'user-123',
+        date: expect.any(Date),
+        is_delete: 1
+      }])
     });
   });
   

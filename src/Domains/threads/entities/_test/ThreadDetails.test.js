@@ -46,7 +46,7 @@ describe("a ThreadDetails entities", () => {
     // Action
     const threadDetails = new ThreadDetails(payload);
     // Assert
-    const { id, title, body, date, username, comments } = threadDetails.thread;
+    const { id, title, body, date, username} = threadDetails.thread;
     expect(id).toEqual(payload.thread.id);
     expect(title).toEqual(payload.thread.title);
     expect(body).toEqual(payload.thread.body);

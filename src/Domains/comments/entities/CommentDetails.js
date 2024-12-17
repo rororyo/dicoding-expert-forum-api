@@ -21,6 +21,7 @@ class CommentDetails {
         username: comment.username,
         date: comment.date,
         content: comment.is_delete ? "**komentar telah dihapus**" : comment.content,
+        likeCount: comment.likeCount,
       };
     });
   }
