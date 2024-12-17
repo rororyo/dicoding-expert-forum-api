@@ -35,7 +35,7 @@ const AddReplyUseCase = require('../Applications/use_case/replies/AddReplyUseCas
 const ReplyRepository = require('../Domains/replies/ReplyRepository');
 const DeleteReplyUseCase = require('../Applications/use_case/replies/DeleteReplyUseCase');
 const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
-const LikeRepository = require('../Domains/likes/likeRepository');
+const LikeRepository = require('../Domains/likes/LikeRepository');
 const LikeRepositoryPostgres = require('./repository/LikeRepositoryPostgres');
 const LikeActionUseCase = require('../Applications/use_case/likes/LikeActionUseCase');
 

@@ -1,6 +1,6 @@
 const LikeTableTestHelper = require("../../../../../tests/LikeTableTestHelper");
 const CommentRepository = require("../../../../Domains/comments/CommentRepository")
-const LikeRepository = require("../../../../Domains/likes/likeRepository");
+const LikeRepository = require("../../../../Domains/likes/LikeRepository");
 const ThreadRepository = require("../../../../Domains/threads/ThreadRepository");
 const LikeActionUseCase = require("../LikeActionUseCase")
 

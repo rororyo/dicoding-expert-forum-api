@@ -1,4 +1,4 @@
-const LikeRepository = require("../likeRepository");
+const LikeRepository = require("../LikeRepository");
 
 
 describe('LikeRepository interface', () => { 
