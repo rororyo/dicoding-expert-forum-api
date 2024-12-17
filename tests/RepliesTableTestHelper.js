@@ -12,7 +12,7 @@ const RepliesTableTestHelper = {
     created_at = new Date(),
   }){
     const query = {
-      text: 'INSERT INTO replies VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id, content, owner_id as owner',
+      text: 'INSERT INTO replies VALUES($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO NOTHING RETURNING id, content, owner_id as owner',
       values: [id, commentId, content, ownerId, threadId, isDelete, created_at],
     }
     const result = await pool.query(query)

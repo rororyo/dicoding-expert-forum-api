@@ -10,7 +10,7 @@ const ThreadsTableTestHelper = {
     owner = 'user-123',
   }){
     const query = {
-      text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5 ,$6) returning id,title,owner',
+      text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5 ,$6) on conflict (id) do nothing returning id,title,owner',
       values: [id, title, body, owner, created_at,created_at]
     }
     const result = await pool.query(query);
